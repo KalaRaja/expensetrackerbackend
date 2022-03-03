@@ -1,0 +1,24 @@
+{
+  "name": "expensetrackerbackend",
+  "version": "1.0.0",
+  "description": "node and express backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KalaRaja/expensetrackerbackend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KalaRaja/expensetrackerbackend/issues"
+  },
+  "homepage": "https://github.com/KalaRaja/expensetrackerbackend#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "moment": "^2.29.1"
+  }
+}
