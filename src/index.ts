@@ -12,6 +12,7 @@ class App {
     private readonly port: number = 3000;
 
     constructor(port: number) {
+        dotenv.config();
         this.routes = new Routes(undefined);
 
         this.connection = new Connection({
@@ -25,7 +26,6 @@ class App {
     }
 
     private initApp() {
-        dotenv.config();
         this.setRoutes();
         this.connection.getConnection();
         this.start();
