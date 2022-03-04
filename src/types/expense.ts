@@ -20,7 +20,7 @@ interface User {
     username: string;
     firstName: string;
     lastName: string;
-    email: string; 
+    email: string;
 }
 
 interface Activity extends Expense{
@@ -28,5 +28,5 @@ interface Activity extends Expense{
     activityDate: moment.Moment;
     activityType: 'changed' | 'deleted';
     activityByUserId: string;
-    notSeenByUserIds: Array<string>;
+    notSeenByUserIds: string[];
 }

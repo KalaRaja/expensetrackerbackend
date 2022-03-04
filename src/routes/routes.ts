@@ -6,13 +6,13 @@ import { Route } from '../types/route';
 
 export class Routes {
     private service: any;
-    private Routes: Array<Route> = [];
+    private Routes: Route[] = [];
 
     constructor(service: any) {
         this.service = service;
     }
 
-    public getRoutes(): Array<Route> {
+    public getRoutes(): Route[] {
 
         return [this.createRoute('/', Method.GET)];
     }
