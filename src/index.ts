@@ -3,6 +3,7 @@ import { Connection } from './database/connection';
 import { Method } from './enums/method';
 import { Routes } from './routes/routes';
 import dotenv from 'dotenv';
+import { Logger } from './logger';
 
 class App {
     private readonly app = express();
@@ -14,6 +15,7 @@ class App {
     constructor(port: number) {
         dotenv.config();
         this.routes = new Routes(undefined);
+        this.port = port;
 
         this.connection = new Connection({
             host: process.env.DATABASE_HOST,
@@ -27,7 +29,7 @@ class App {
 
     private initApp() {
         this.setRoutes();
-        this.connection.getConnection();
+        Logger.info('Starting App.');
         this.start();
     }
 
@@ -45,9 +47,9 @@ class App {
     }
 
     start() {
-        console.log(`Listening on ${this.port}`)
         this.app.listen(this.port);
+        Logger.info(`Listening on ${this.port}.`);
     }
 }
 
-new App(3000);
+new App(3030);

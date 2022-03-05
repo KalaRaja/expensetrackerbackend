@@ -2,21 +2,26 @@ import { ConnectionOptions, Connection as MysqlConnection, createConnection } fr
 import { Logger } from '../logger';
 
 export class Connection {
-    private readonly mysqlConnection: MysqlConnection;
+    private mysqlConnection: MysqlConnection;
+    private readonly connectionOptions: ConnectionOptions;
 
     constructor(config: ConnectionOptions) {
-        this.mysqlConnection = createConnection(config);
-        this.mysqlConnection.on('error', error => {
-            Logger.error('Error on Database.', error)
-        });
+        this.connectionOptions = config;
     }
 
     public getConnection(): MysqlConnection {
+        Logger.info('Connecting to Database.');
+        this.mysqlConnection = createConnection(this.connectionOptions);
+        this.mysqlConnection.on('error', (error: Error) => {
+            Logger.error('Error on Database.', error)
+        });
+
         this.mysqlConnection.connect();
         return this.mysqlConnection;
     }
 
     public closeConnection() {
+        Logger.info('Closing Database connection.');
         this.mysqlConnection.destroy();
     }
 }
