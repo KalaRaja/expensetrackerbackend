@@ -5,7 +5,7 @@ interface Category {
     name: string;
 }
 
-interface Expense {
+export interface Expense {
     id: string;
     byUserId: string;
     forUserId: string;
@@ -15,7 +15,7 @@ interface Expense {
     date: moment.Moment;
 }
 
-interface User {
+export interface User {
     id: string;
     username: string;
     firstName: string;
@@ -23,7 +23,7 @@ interface User {
     email: string;
 }
 
-interface Activity extends Expense{
+export interface Activity extends Expense{
     id: string;
     activityDate: moment.Moment;
     activityType: 'changed' | 'deleted';

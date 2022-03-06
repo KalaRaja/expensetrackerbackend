@@ -4,6 +4,7 @@ import { Method } from './enums/method';
 import { Routes } from './routes/routes';
 import dotenv from 'dotenv';
 import { Logger } from './logger';
+import { DataService } from './services/data-service';
 
 class App {
     private readonly app = express();
@@ -21,7 +22,8 @@ class App {
             host: process.env.DATABASE_HOST,
             user: process.env.DATABASE_USERNAME,
             password: process.env.DATABASE_PASSWORD,
-            port: Number(process.env.DATABASE_PORT ?? 3306)
+            port: Number(process.env.DATABASE_PORT ?? 3306),
+            database: process.env.DATABASE_NAME
         });
 
         this.initApp();
@@ -31,6 +33,8 @@ class App {
         this.setRoutes();
         Logger.info('Starting App.');
         this.start();
+
+        new DataService(this.connection).getActivities([]);
     }
 
     setRoutes() {
