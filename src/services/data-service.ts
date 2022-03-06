@@ -11,24 +11,18 @@ export class DataService {
     }
 
     private buildStatment(selectStatementStructure: SelectStatement): string {
-       const columns = selectStatementStructure.columns.map(c => `${c.fromAlias}.${c.column} as ${c.toAlias}`).join(',');
+       const columns = selectStatementStructure.columns.map(c => `${c.fromAlias ? `${c.fromAlias}.` : ''}${c.column} as ${c.toAlias}`).join(',');
        const from = selectStatementStructure.tables.map(t => `${t.table}${t.alias ? ' ' + t.alias : ''}`).join(',');
-       const conditions = selectStatementStructure.where?.conditions.map(c => `${c.column.fromAlias}.${c.column.column} ${c.operator} ${c.value}`) ?? [];
+       const conditions = selectStatementStructure.where?.conditions.map(c => `${c.column.fromAlias ? `${c.column.fromAlias}.` : ''}${c.column.column} ${c.operator} ${c.value}`) ?? [];
 
        // join conditions with conjunctions to form where condition string
        const whereCondition = conditions.reduce((acc, curr, i) => {
-           let whereCondition$ = '';
-           const conjunction = selectStatementStructure.where?.conjunction[i];
-           if (conjunction) {
-                whereCondition$ =  `${curr} ${conjunction} `;
-           } else {
-            whereCondition$ = curr;
-           }
-           return acc + whereCondition$;
+            const conjunction = selectStatementStructure.where?.conjunction?.[i] ?? '';
+            return `${acc ? `${acc} ` : ''}${curr}${conjunction ? ` ${conjunction}` : ''}`;
        }, '');
 
        const groupBy = selectStatementStructure.groupBy?.map(g => `${g.fromAlias}.${g.column}`).join(',');
-       const orderBy = `${selectStatementStructure?.orderBy?.columns?.map(o => `${o.fromAlias}.${o.column}`).join(',')} ${selectStatementStructure.orderBy?.order ?? ''}`;
+       const orderBy = `${selectStatementStructure?.orderBy?.columns?.map(o => `${o.fromAlias ? `${o.fromAlias}.` : ''}${o.column}`).join(',')} ${selectStatementStructure.orderBy?.order ?? ''}`;
 
        let statement = `SELECT ${columns} FROM ${from}`;
        statement = statement + (whereCondition ? ` WHERE ${whereCondition}` : '');
