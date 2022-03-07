@@ -1,9 +1,9 @@
+import dotenv from 'dotenv';
 import express from 'express';
 import { Connection } from './database/connection';
 import { Method } from './enums/method';
-import { Routes } from './routes/routes';
-import dotenv from 'dotenv';
 import { Logger } from './logger';
+import { Routes } from './routes/routes';
 import { DataService } from './services/data-service';
 
 class App {

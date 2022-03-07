@@ -1,37 +1,37 @@
-
 type OperatorType = '<' | '>' | '=' | '<=' | '>=' | 'IS' | 'IS NOT' | '<>';
+export type FieldType = Omit<ColumnWithTableAlias, 'toAlias'>;
 
-interface TableWithAlias {
+export interface TableWithAlias {
     table: string;
     alias?: string;
 }
 
-interface ColumnFromTableAlias {
-    column: string;
+export interface ColumnWithTableAlias {
+    name: string;
     fromAlias?: string;
     toAlias?: string;
 }
 
-interface OrderBy {
-    columns: ColumnFromTableAlias[];
+export interface OrderBy {
+    fields: FieldType[];
     order?: 'asc' | 'desc';
 }
 
-interface Condition {
-    column: ColumnFromTableAlias;
+export interface Condition {
+    field: FieldType;
     operator: OperatorType;
     value: string | number | 'NULL';
 }
 
-interface Wherecondition {
+export interface Wherecondition {
     conditions: Condition[];
     conjunction?: ('and' | 'or')[]; // one conjunction inserted between two conditions
 }
 
 export interface SelectStatement {
     tables: TableWithAlias[];
-    columns: ColumnFromTableAlias[];
+    columns: ColumnWithTableAlias[];
     orderBy?: OrderBy;
-    groupBy?: ColumnFromTableAlias[]
-    where?: Wherecondition
+    groupBy?: FieldType[];
+    where?: Wherecondition;
 }

@@ -10,7 +10,7 @@ export interface Expense {
     byUserId: string;
     forUserId: string;
     name: string;
-    category: Category
+    category: Category;
     cost: number;
     date: moment.Moment;
 }

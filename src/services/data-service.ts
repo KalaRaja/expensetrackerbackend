@@ -1,7 +1,7 @@
 import { Connection } from "../database/connection";
 import { Logger } from "../logger";
 import { Activity } from "../types/expense";
-import { SelectStatement } from "../types/query-structure";
+import { QueryBuilder } from "./query-builder";
 
 export class DataService {
     private readonly databaseConnection: Connection;
@@ -10,66 +10,61 @@ export class DataService {
         this.databaseConnection = connection;
     }
 
-    private buildStatment(selectStatementStructure: SelectStatement): string {
-       const columns = selectStatementStructure.columns.map(c => `${c.fromAlias ? `${c.fromAlias}.` : ''}${c.column} as ${c.toAlias}`).join(',');
-       const from = selectStatementStructure.tables.map(t => `${t.table}${t.alias ? ' ' + t.alias : ''}`).join(',');
-       const conditions = selectStatementStructure.where?.conditions.map(c => `${c.column.fromAlias ? `${c.column.fromAlias}.` : ''}${c.column.column} ${c.operator} ${c.value}`) ?? [];
-
-       // join conditions with conjunctions to form where condition string
-       const whereCondition = conditions.reduce((acc, curr, i) => {
-            const conjunction = selectStatementStructure.where?.conjunction?.[i] ?? '';
-            return `${acc ? `${acc} ` : ''}${curr}${conjunction ? ` ${conjunction}` : ''}`;
-       }, '');
-
-       const groupBy = selectStatementStructure.groupBy?.map(g => `${g.fromAlias}.${g.column}`).join(',');
-       const orderBy = `${selectStatementStructure?.orderBy?.columns?.map(o => `${o.fromAlias ? `${o.fromAlias}.` : ''}${o.column}`).join(',')} ${selectStatementStructure.orderBy?.order ?? ''}`;
-
-       let statement = `SELECT ${columns} FROM ${from}`;
-       statement = statement + (whereCondition ? ` WHERE ${whereCondition}` : '');
-       statement = statement + (groupBy ? ` GROUP BY ${groupBy}` : '');
-       statement = statement + (orderBy ? ` ORDER BY ${orderBy}` : '');
-
-       return statement;
-    }
-
     getActivities(id: string[]): Activity[] {
         const connection = this.databaseConnection.getConnection();
 
-        const queryStatement = this.buildStatment(
+        const queryStatement = QueryBuilder.buildStatment(
             {
                 columns: [
                     {
-                        column: 'id',
+                        name: 'id',
                         fromAlias: 'u',
                         toAlias: 'iden'
                     },
                     {
-                        column: 'email',
+                        name: 'email',
                         fromAlias: 'u',
                         toAlias: 'em'
+                    },
+                    {
+                        name: 'name',
+                        fromAlias: 'c',
+                        toAlias: 'cname'
                     }
                 ],
                 tables: [
                     {
                         table: 'user',
                         alias: 'u'
+                    },
+                    {
+                        table: 'category',
+                        alias: 'c'
                     }
                 ],
                 where: {
-                    conjunction: ['and'],
+                    conjunction: ['and', 'and'],
                     conditions: [
                         {
-                            column: {
-                                column: 'id',
+                            field: {
+                                name: 'id',
                                 fromAlias: 'u'
                             },
                             operator: 'IS NOT',
                             value: 'NULL'
                         },
                         {
-                            column: {
-                                column: 'email',
+                            field: {
+                                name: 'email',
                                 fromAlias: 'u'
+                            },
+                            operator: 'IS NOT',
+                            value: 'NULL'
+                        },
+                        {
+                            field: {
+                                name: 'id',
+                                fromAlias: 'c'
                             },
                             operator: 'IS NOT',
                             value: 'NULL'
@@ -78,9 +73,9 @@ export class DataService {
                 },
                 orderBy: {
                     order: 'asc',
-                    columns: [
+                    fields: [
                         {
-                            column: 'id',
+                            name: 'id',
                             fromAlias: 'u'
                         }
                     ]

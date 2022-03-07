@@ -1,4 +1,4 @@
-import { ConnectionOptions, Connection as MysqlConnection, createConnection } from 'mysql2';
+import { Connection as MysqlConnection, ConnectionOptions, createConnection } from 'mysql2';
 import { Logger } from '../logger';
 
 export class Connection {
@@ -13,7 +13,7 @@ export class Connection {
         Logger.info('Connecting to Database.');
         this.mysqlConnection = createConnection(this.connectionOptions);
         this.mysqlConnection.on('error', (error: Error) => {
-            Logger.error('Error on Database.', error)
+            Logger.error('Error on Database.', error);
         });
 
         this.mysqlConnection.connect();

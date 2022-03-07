@@ -24,7 +24,7 @@ export class Routes {
             handler: (_req: Request, res: Response) => {
                 res.sendStatus(200);
             }
-        }
+        };
         return route;
     }
 }
