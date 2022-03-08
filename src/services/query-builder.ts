@@ -1,7 +1,8 @@
-import { ColumnWithTableAlias, Condition, FieldType, OrderBy, SelectStatement, TableWithAlias, Wherecondition } from "../types/query-structure";
+import { ColumnWithTableAlias, Condition, FieldType, InsertStatement, OrderBy, SelectStatement, TableWithAlias, Wherecondition } from "../types/query-structure";
+import { zip as loZip } from 'lodash';
 
 export class QueryBuilder {
-    public static buildStatment(selectStatementStructure: SelectStatement): string {
+    public static buildSelectStatment(selectStatementStructure: SelectStatement): string {
         const columns = this.buildColumnsToSelect(selectStatementStructure.columns);
         const from = this.buildTablesToSelectFrom(selectStatementStructure.tables);
         const whereCondition = this.buildWhereCondition(selectStatementStructure.where);
@@ -94,5 +95,10 @@ export class QueryBuilder {
             }
             return `${previousString}${field}`;
         }, '')} ${orderBy.order ?? ''}`;
+    }
+
+    public static buildInsertStatement(insertStatementStructure: InsertStatement): string {
+        const { table, columns, values } = insertStatementStructure;
+        return `INSERT INTO ${table} (${columns.join(',')}) values (${values.map(v => typeof v === 'string' ? `'${v}'` : v).join(',')})`;
     }
 }

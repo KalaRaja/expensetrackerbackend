@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from 'moment';
 
 interface Category {
     id: string;
@@ -13,20 +13,4 @@ export interface Expense {
     category: Category;
     cost: number;
     date: moment.Moment;
-}
-
-export interface User {
-    id: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-}
-
-export interface Activity extends Expense{
-    id: string;
-    activityDate: moment.Moment;
-    activityType: 'changed' | 'deleted';
-    activityByUserId: string;
-    notSeenByUserIds: string[];
 }

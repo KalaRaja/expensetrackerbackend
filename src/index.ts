@@ -34,7 +34,7 @@ class App {
         Logger.info('Starting App.');
         this.start();
 
-        new DataService(this.connection).getActivities([]);
+        new DataService(this.connection).createUser({ id: 'oxa', username: 'oxa', firstname: 'oxa', lastname: 'oxa', email: 'oxa', password: 'oxa' });
     }
 
     setRoutes() {

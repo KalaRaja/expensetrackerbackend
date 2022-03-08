@@ -1,13 +1,15 @@
+import { Column, Table } from "../enums/table-description";
+
 type OperatorType = '<' | '>' | '=' | '<=' | '>=' | 'IS' | 'IS NOT' | '<>';
 export type FieldType = Omit<ColumnWithTableAlias, 'toAlias'>;
 
 export interface TableWithAlias {
-    table: string;
+    table: Table;
     alias?: string;
 }
 
 export interface ColumnWithTableAlias {
-    name: string;
+    name: Column;
     fromAlias?: string;
     toAlias?: string;
 }
@@ -34,4 +36,10 @@ export interface SelectStatement {
     orderBy?: OrderBy;
     groupBy?: FieldType[];
     where?: Wherecondition;
+}
+
+export interface InsertStatement {
+    table: Table;
+    columns: Column[];
+    values: (string | number)[];
 }
