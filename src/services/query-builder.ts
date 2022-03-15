@@ -1,10 +1,21 @@
-import { ColumnWithTableAlias, Condition, FieldType, InsertStatement, OrderBy, SelectStatement, TableWithAlias, Wherecondition } from "../types/query-structure";
+import { ColumnWithTableAlias, Condition, Field, InsertStatement, Join, OrderBy, SelectStatement, TableWithAlias, Wherecondition } from "../types/query-structure";
 import { zip as loZip } from 'lodash';
+import { Logger } from "../logger";
 
 export class QueryBuilder {
     public static buildSelectStatment(selectStatementStructure: SelectStatement): string {
         const columns = this.buildColumnsToSelect(selectStatementStructure.columns);
-        const from = this.buildTablesToSelectFrom(selectStatementStructure.tables);
+        let from: string;
+
+        if (selectStatementStructure.tables) {
+            from = this.buildTablesToSelectFrom(selectStatementStructure.tables);
+        } else if (selectStatementStructure.joins) {
+            from = this.buildJoinsToSelectFrom(selectStatementStructure.joins);
+        } else {
+            Logger.error("Query should have either tables or joins to select from");
+            console.log('a')
+            return;
+        }
         const whereCondition = this.buildWhereCondition(selectStatementStructure.where);
         const groupBy = this.buildGroupBy(selectStatementStructure.groupBy);
         const orderBy = this.buildOrderBy(selectStatementStructure.orderBy);
@@ -66,12 +77,32 @@ export class QueryBuilder {
             const alias = tableWithAliasObject.alias ? ` ${tableWithAliasObject.alias}` : '';
             const previousString = accumulator ? `${accumulator}, `: '';
 
-            return `${previousString}${tableWithAliasObject.table}${alias}`;
+            return `${previousString}${tableWithAliasObject.name}${alias}`;
         }, '');
     }
 
-    private static buildGroupBy(groupBy: FieldType[]): string {
-        return (groupBy ?? []).reduce((accumulator: string, groupByObject: FieldType) => {
+    private static buildJoinsToSelectFrom(join: Join): string {
+        let result = '';
+        let current = join;
+        while(current) {
+            const next = current.next;
+            if (next) {
+                const currentAlias = current.table.alias ? ` ${current.table.alias}` : '';
+                const nextAlias = next.table.alias ? ` ${next.table.alias}` : '';
+                const currentFieldAlias = current.table.alias ? `${current.table.alias}.` : '';
+                const nextFieldAlias = next.table.alias ? `${next.table.alias}.` : '';
+                const on = `ON ${currentFieldAlias}${current.joinOnfield} ${current.operator} ${nextFieldAlias}${next.joinOnfield}`;
+                result = result ? `${result} JOIN ${next.table.name}${nextAlias}` : `${current.table.name}${currentAlias} JOIN ${next.table.name}${nextAlias}`;
+                result = `${result} ${on}`;
+            }
+            current = next;
+        }
+
+        return result;
+    }
+
+    private static buildGroupBy(groupBy: Field[]): string {
+        return (groupBy ?? []).reduce((accumulator: string, groupByObject: Field) => {
             const fromAlias = groupByObject.fromAlias;
             const field = groupByObject.name;
             const previousString = accumulator ? `${accumulator}, ` : '';
@@ -85,7 +116,7 @@ export class QueryBuilder {
     }
 
     private static buildOrderBy(orderBy: OrderBy): string {
-        return `${(orderBy?.fields ?? []).reduce((accumulator: string, orderByObject: FieldType)=> {
+        const result = `${(orderBy?.fields ?? []).reduce((accumulator: string, orderByObject: Field)=> {
             const field = orderByObject.name;
             const fromAlias = orderByObject.fromAlias;
             const previousString = accumulator ? `${accumulator}, ` : '';
@@ -94,7 +125,9 @@ export class QueryBuilder {
                 return `${previousString}${fromAlias}.${field}`;
             }
             return `${previousString}${field}`;
-        }, '')} ${orderBy.order ?? ''}`;
+        }, '')}`;
+
+        return result ? `${result} ${orderBy?.order ?? ''}` : result;
     }
 
     public static buildInsertStatement(insertStatementStructure: InsertStatement): string {

@@ -1,26 +1,30 @@
-import { Column, Table } from "../enums/table-description";
+import { Columns, Tables } from "../enums/table-description";
 
 type OperatorType = '<' | '>' | '=' | '<=' | '>=' | 'IS' | 'IS NOT' | '<>';
-export type FieldType = Omit<ColumnWithTableAlias, 'toAlias'>;
+
+export interface Field {
+    name: string;
+    fromAlias: string;
+}
 
 export interface TableWithAlias {
-    table: Table;
+    name: Tables;
     alias?: string;
 }
 
 export interface ColumnWithTableAlias {
-    name: Column;
+    name: Columns;
     fromAlias?: string;
     toAlias?: string;
 }
 
 export interface OrderBy {
-    fields: FieldType[];
+    fields: Field[];
     order?: 'asc' | 'desc';
 }
 
 export interface Condition {
-    field: FieldType;
+    field: Field;
     operator: OperatorType;
     value: string | number | 'NULL';
 }
@@ -30,16 +34,24 @@ export interface Wherecondition {
     conjunction?: ('and' | 'or')[]; // one conjunction inserted between two conditions
 }
 
+export interface Join {
+    next?: Join;
+    table: TableWithAlias;
+    joinOnfield?: string;
+    operator?: OperatorType;
+}
+
 export interface SelectStatement {
-    tables: TableWithAlias[];
+    tables?: TableWithAlias[];
+    joins?: Join;
     columns: ColumnWithTableAlias[];
     orderBy?: OrderBy;
-    groupBy?: FieldType[];
+    groupBy?: Field[];
     where?: Wherecondition;
 }
 
 export interface InsertStatement {
-    table: Table;
-    columns: Column[];
+    table: Tables;
+    columns: Columns[];
     values: (string | number)[];
 }

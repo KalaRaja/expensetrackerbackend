@@ -1,6 +1,7 @@
 import { Connection } from '../database/connection';
-import { Column, UserColumn, Table } from '../enums/table-description';
+import { UserColumns, Tables } from '../enums/table-description';
 import { Logger } from '../logger';
+import { Activity } from '../types/activity';
 import { User } from '../types/user';
 import { QueryBuilder } from './query-builder';
 
@@ -11,46 +12,70 @@ export class DataService {
         this.databaseConnection = connection;
     }
 
-    createUser(user: User) {
+    public createUser(user: User) {
         const structure = {
-            table: Table.USER,
-            columns: [UserColumn.ID, UserColumn.USERNAME, UserColumn.FIRST_NAME, UserColumn.LAST_NAME, UserColumn.EMAIL, UserColumn.PASSWORD],
+            table: Tables.USER,
+            columns: [UserColumns.ID, UserColumns.USERNAME, UserColumns.FIRST_NAME, UserColumns.LAST_NAME, UserColumns.EMAIL, UserColumns.PASSWORD],
             values: [user.id, user.username, user.firstname?? null, user.lastname, user.email, user.password]
         };
         const queryStatement = QueryBuilder.buildInsertStatement(structure);
         const connection = this.databaseConnection.getConnection();
         connection.query(queryStatement);
+        connection.destroy();
     }
 
-    /*getActivities(id: string[]): Activity[] {
+    /*public getActivities(id: string[]): Activity[] {
+        const connection = this.databaseConnection.getConnection();
+        const structure = {
+
+        }
+    }*/
+
+    public getActivities(id: string[]): Activity[] {
         const connection = this.databaseConnection.getConnection();
 
-        const queryStatement = QueryBuilder.buildStatment(
+        const queryStatement = QueryBuilder.buildSelectStatment(
             {
                 columns: [
                     {
-                        name: 'id',
+                        name: UserColumns.ID,
                         fromAlias: 'u',
                         toAlias: 'iden'
                     },
                     {
-                        name: 'email',
+                        name: UserColumns.EMAIL,
                         fromAlias: 'u',
                         toAlias: 'em'
                     },
                     {
-                        name: 'name',
+                        name: UserColumns.FIRST_NAME,
                         fromAlias: 'c',
                         toAlias: 'cname'
                     }
                 ],
-                tables: [
+                joins: {
+                    next: {
+                        table: {
+                            name: Tables.EXPENSE,
+                            alias: 'tableb'
+                        },
+                        joinOnfield: 'id',
+                        operator: '<'
+                    },
+                    table: {
+                        name: Tables.USER,
+                        alias: 'tableA'
+                    },
+                    operator: '=',
+                    joinOnfield: 'id',
+                }
+                /*tables: [
                     {
-                        table: 'user',
+                        table: Tables.USER,
                         alias: 'u'
                     },
                     {
-                        table: 'category',
+                        table: Tables.CATEGORY,
                         alias: 'c'
                     }
                 ],
@@ -91,7 +116,7 @@ export class DataService {
                             fromAlias: 'u'
                         }
                     ]
-                }
+                }*/
             }
         );
 
@@ -99,5 +124,5 @@ export class DataService {
 
         connection.query(queryStatement, err => Logger.error('Error in query', err), result => Logger.info(JSON.stringify(result)));
         return [];
-    }*/
+    }
 }
