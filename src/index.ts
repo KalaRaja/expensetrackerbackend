@@ -34,8 +34,20 @@ class App {
         Logger.info('Starting App.');
         this.start();
 
-        new DataService(this.connection).createUser({ id: 'oxa', username: 'oxa', firstname: 'oxa', lastname: 'oxa', email: 'oxa', password: 'oxa' });
-        //new DataService(this.connection).getActivities([]);
+        //new DataService(this.connection).createUser({ id: 'oxa', username: 'oxa', firstname: 'oxa', lastname: 'oxa', email: 'oxa', password: 'oxa' });
+        /*new DataService(this.connection).createExpense({
+            id: 'a',
+            byUserId: 'aa',
+            forUserId: 'aa',
+            name: 'aa',
+            categoryId: 'a',
+            cost: 10.2,
+            date: '2020-10-1',
+            description: 'desc test',
+            title: 'tola'
+        });
+
+        new DataService(this.connection).deleteExpense('a', 'oxa');*/
     }
 
     setRoutes() {

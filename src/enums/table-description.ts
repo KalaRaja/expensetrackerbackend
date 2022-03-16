@@ -2,7 +2,6 @@ export enum Tables {
     USER = 'user',
     EXPENSE = 'expense',
     ACTIVITY = 'activity',
-    STATUS = 'status',
     EXPENSE_HISTORY = 'expensehistory',
     CATEGORY = 'category'
 }
@@ -23,17 +22,13 @@ export enum ExpenseColumns {
     COST = 'cost',
     DATE = 'date',
     BY_USER_ID = 'byuserid',
-    FOR_USER_ID = 'foruserid'
-}
-
-export enum StatusColumns {
-    ID = 'id',
-    NAME = 'name',
+    FOR_USER_ID = 'foruserid',
+    CATEGORY_ID = 'categoryid'
 }
 
 export enum ExpenseHistoryColumns {
     ID = 'id',
-    STATUS_ID = 'statusid',
+    STATUS = 'status',
     OLD_ID = 'oldid',
     NEW_ID = 'newid'
 }
@@ -51,4 +46,4 @@ export enum ActivityColumns {
     DATE = 'date'
 }
 
-export type Columns = UserColumns | ExpenseColumns | StatusColumns | ExpenseHistoryColumns | CategoryColumns | ActivityColumns;
+export type Columns = UserColumns | ExpenseColumns | ExpenseHistoryColumns | CategoryColumns | ActivityColumns;

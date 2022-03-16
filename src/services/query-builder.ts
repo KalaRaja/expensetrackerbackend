@@ -13,7 +13,6 @@ export class QueryBuilder {
             from = this.buildJoinsToSelectFrom(selectStatementStructure.joins);
         } else {
             Logger.error("Query should have either tables or joins to select from");
-            console.log('a')
             return;
         }
         const whereCondition = this.buildWhereCondition(selectStatementStructure.where);
