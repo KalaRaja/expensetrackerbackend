@@ -32,9 +32,9 @@ export class Logger {
 
         if (Logger.showOnConsole) {
             switch(logLevel) {
-                case 'warn': console.warn(message); break;
-                case 'error': console.error(message, dumpObject); break;
-                case 'info': console.info(message); break;
+                case 'warn': console.warn(message, dumpObject ? dumpObject : ''); break;
+                case 'error': console.error(message, dumpObject ? dumpObject : ''); break;
+                case 'info': console.info(message, dumpObject ? dumpObject : ''); break;
             }
         }
     }

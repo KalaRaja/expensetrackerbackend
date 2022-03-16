@@ -1,3 +1,5 @@
+import { RowDataPacket } from 'mysql2';
+import Query from 'mysql2/typings/mysql/lib/protocol/sequences/Query';
 import { Connection } from '../database/connection';
 import { UserColumns, Tables } from '../enums/table-description';
 import { Logger } from '../logger';
@@ -19,110 +21,55 @@ export class DataService {
             values: [user.id, user.username, user.firstname?? null, user.lastname, user.email, user.password]
         };
         const queryStatement = QueryBuilder.buildInsertStatement(structure);
-        const connection = this.databaseConnection.getConnection();
-        connection.query(queryStatement);
-        connection.destroy();
+        this.performTransaction([queryStatement]);
     }
 
     /*public getActivities(id: string[]): Activity[] {
         const connection = this.databaseConnection.getConnection();
-        const structure = {
-
-        }
+        connection.query(queryStatement, (err, result) => {
+            Logger.error('Error in query', err);
+            Logger.info('result', result);
+        });
+        return [];
     }*/
 
-    public getActivities(id: string[]): Activity[] {
+    public createExpense() {
+
+    }
+
+    private performTransaction(querySequence: string[]) {
         const connection = this.databaseConnection.getConnection();
 
-        const queryStatement = QueryBuilder.buildSelectStatment(
-            {
-                columns: [
-                    {
-                        name: UserColumns.ID,
-                        fromAlias: 'u',
-                        toAlias: 'iden'
-                    },
-                    {
-                        name: UserColumns.EMAIL,
-                        fromAlias: 'u',
-                        toAlias: 'em'
-                    },
-                    {
-                        name: UserColumns.FIRST_NAME,
-                        fromAlias: 'c',
-                        toAlias: 'cname'
-                    }
-                ],
-                joins: {
-                    next: {
-                        table: {
-                            name: Tables.EXPENSE,
-                            alias: 'tableb'
-                        },
-                        joinOnfield: 'id',
-                        operator: '<'
-                    },
-                    table: {
-                        name: Tables.USER,
-                        alias: 'tableA'
-                    },
-                    operator: '=',
-                    joinOnfield: 'id',
-                }
-                /*tables: [
-                    {
-                        table: Tables.USER,
-                        alias: 'u'
-                    },
-                    {
-                        table: Tables.CATEGORY,
-                        alias: 'c'
-                    }
-                ],
-                where: {
-                    conjunction: ['and', 'and'],
-                    conditions: [
-                        {
-                            field: {
-                                name: 'id',
-                                fromAlias: 'u'
-                            },
-                            operator: 'IS NOT',
-                            value: 'NULL'
-                        },
-                        {
-                            field: {
-                                name: 'email',
-                                fromAlias: 'u'
-                            },
-                            operator: 'IS NOT',
-                            value: 'NULL'
-                        },
-                        {
-                            field: {
-                                name: 'id',
-                                fromAlias: 'c'
-                            },
-                            operator: 'IS NOT',
-                            value: 'NULL'
-                        }
-                    ]
-                },
-                orderBy: {
-                    order: 'asc',
-                    fields: [
-                        {
-                            name: 'id',
-                            fromAlias: 'u'
-                        }
-                    ]
-                }*/
+        connection.beginTransaction((error: Error) => {
+            if (error) {
+                connection.rollback(() => {
+                    Logger.error("could not complete transaction", error);
+                });
+            connection.destroy();
             }
-        );
 
-        Logger.info(queryStatement);
+            querySequence.forEach(sql => {
+                Logger.info('Query to be executed under transaction: ', sql);
+                connection.query({
+                        sql,
+                        timeout: 2000
+                    },      
+                    (error: Query.QueryError, result: RowDataPacket[]) => {
+                    if (error) {
+                        Logger.error('Error in query', error);
+                        connection.rollback(() => Logger.error("Could not complete transaction", error));
+                        connection.destroy();
+                    }
+                });
+            });
 
-        connection.query(queryStatement, err => Logger.error('Error in query', err), result => Logger.info(JSON.stringify(result)));
-        return [];
+            connection.commit((error: Error) => {
+                if (error) {
+                    connection.rollback(() => Logger.error("could not complete transaction", error));
+                    connection.destroy();
+                }
+                Logger.info('Transaction success');
+            });
+        });
     }
 }
